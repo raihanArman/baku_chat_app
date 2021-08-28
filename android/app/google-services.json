@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "221960098363",
+    "project_id": "bakuchatapp-66d74",
+    "storage_bucket": "bakuchatapp-66d74.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:221960098363:android:0c43c677640b2c0002821e",
+        "android_client_info": {
+          "package_name": "com.example.baku_chat_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "221960098363-d2dslbjnaftpfl72p2ej8vgs9097jfh7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.baku_chat_app",
+            "certificate_hash": "28480123333c010c9700b9e82eec7a9344a65d03"
+          }
+        },
+        {
+          "client_id": "221960098363-6anvmr50oo551c19figi0l87a9kmuqn9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcLPJFEv_nHotU1WlaerKHM55pmB7X-UM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "221960098363-6anvmr50oo551c19figi0l87a9kmuqn9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
