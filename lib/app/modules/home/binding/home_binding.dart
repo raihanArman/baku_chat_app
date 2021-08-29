@@ -1,4 +1,4 @@
-import 'package:baku_chat_app/modules/home/controller/home_controller.dart';
+import 'package:baku_chat_app/app/modules/home/controller/home_controller.dart';
 import 'package:get/get.dart';
 
 class HomeBinding extends Bindings {

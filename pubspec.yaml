@@ -32,6 +32,8 @@ dependencies:
   google_sign_in: ^5.0.7
   get: ^4.3.8
   firebase_auth: ^3.1.0
+  lottie: ^1.1.0
+  introduction_screen: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -47,6 +49,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+  - assets/lottie/
+  - assets/logo/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
