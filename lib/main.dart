@@ -6,10 +6,11 @@ import 'package:baku_chat_app/app/utils/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await GetStorage.init();
   runApp(MyApp());
 }
 
@@ -32,29 +33,26 @@ class MyApp extends StatelessWidget {
 
         // Once complete, show your application
         if (snapshot.connectionState == ConnectionState.done) {
-          return GetMaterialApp(
-            title: "Chat app",
-            initialRoute: Routes.CHANGE_PROFILE,
-            getPages: AppPages.routes,
-          );
-          // return FutureBuilder(
-          //     future: Future.delayed(Duration(seconds: 3)),
-          //     builder: (context, snapshot) {
-          //       if (snapshot.connectionState == ConnectionState.done) {
-          //         return Obx(
-          //           () => GetMaterialApp(
-          //             title: "Application",
-          //             initialRoute: authC.isSkipIntro.isTrue
-          //                 ? authC.isAuth.isTrue
-          //                     ? Routes.HOME
-          //                     : Routes.LOGIN
-          //                 : Routes.INTRO,
-          //             getPages: AppPages.routes,
-          //           ),
-          //         );
-          //       }
-          //       return SplashScreen();
-          //     });
+          return FutureBuilder(
+              future: Future.delayed(Duration(seconds: 3)),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Obx(
+                    () => GetMaterialApp(
+                      title: "Application",
+                      initialRoute: authC.isSkipIntro.isTrue
+                          ? authC.isAuth.isTrue
+                              ? Routes.HOME
+                              : Routes.LOGIN
+                          : Routes.INTRO,
+                      getPages: AppPages.routes,
+                    ),
+                  );
+                }
+                return FutureBuilder(
+                    future: authC.firstInitialized(),
+                    builder: (context, snapshot) => SplashScreen());
+              });
         }
 
         // Otherwise, show something whilst waiting for initialization to complete

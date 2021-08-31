@@ -10,7 +10,8 @@ class ChangeProfileView extends GetView<ChangeProfileController> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back)),
+          leading: IconButton(
+              onPressed: () => Get.back(), icon: Icon(Icons.arrow_back)),
           backgroundColor: Colors.red[900],
           title: Text('Change Profile'),
           centerTitle: true,

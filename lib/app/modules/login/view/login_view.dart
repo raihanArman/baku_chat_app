@@ -1,9 +1,11 @@
+import 'package:baku_chat_app/app/controllers/auth_controller.dart';
+import 'package:baku_chat_app/app/modules/login/controller/login_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
-class LoginView extends StatelessWidget {
-  const LoginView({Key? key}) : super(key: key);
+class LoginView extends GetView<LoginController> {
+  final authC = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class LoginView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => authC.login(),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
