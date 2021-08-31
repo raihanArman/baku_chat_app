@@ -32,24 +32,29 @@ class MyApp extends StatelessWidget {
 
         // Once complete, show your application
         if (snapshot.connectionState == ConnectionState.done) {
-          return FutureBuilder(
-              future: Future.delayed(Duration(seconds: 3)),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return Obx(
-                    () => GetMaterialApp(
-                      title: "Application",
-                      initialRoute: authC.isSkipIntro.isTrue
-                          ? authC.isAuth.isTrue
-                              ? Routes.HOME
-                              : Routes.LOGIN
-                          : Routes.INTRO,
-                      getPages: AppPages.routes,
-                    ),
-                  );
-                }
-                return SplashScreen();
-              });
+          return GetMaterialApp(
+            title: "Chat app",
+            initialRoute: Routes.CHANGE_PROFILE,
+            getPages: AppPages.routes,
+          );
+          // return FutureBuilder(
+          //     future: Future.delayed(Duration(seconds: 3)),
+          //     builder: (context, snapshot) {
+          //       if (snapshot.connectionState == ConnectionState.done) {
+          //         return Obx(
+          //           () => GetMaterialApp(
+          //             title: "Application",
+          //             initialRoute: authC.isSkipIntro.isTrue
+          //                 ? authC.isAuth.isTrue
+          //                     ? Routes.HOME
+          //                     : Routes.LOGIN
+          //                 : Routes.INTRO,
+          //             getPages: AppPages.routes,
+          //           ),
+          //         );
+          //       }
+          //       return SplashScreen();
+          //     });
         }
 
         // Otherwise, show something whilst waiting for initialization to complete
