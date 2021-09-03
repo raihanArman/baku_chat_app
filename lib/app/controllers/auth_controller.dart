@@ -1,4 +1,6 @@
+import 'package:baku_chat_app/app/data/models/user_model.dart';
 import 'package:baku_chat_app/app/routes/app_pages.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -11,6 +13,10 @@ class AuthController extends GetxController {
   GoogleSignIn _googleSignIn = GoogleSignIn();
   GoogleSignInAccount? _currentUser;
   UserCredential? userCredential;
+
+  UserModel dataUser = UserModel();
+
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   Future<void> firstInitialized() async {
     await autoLogin().then((value) {
@@ -38,6 +44,38 @@ class AuthController extends GetxController {
     try {
       final isSignIn = await _googleSignIn.isSignedIn();
       if (isSignIn) {
+        await _googleSignIn
+            .signInSilently()
+            .then((value) => _currentUser = value);
+
+        final googleAuth = await _currentUser!.authentication;
+        final credentials = GoogleAuthProvider.credential(
+            idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
+
+        await FirebaseAuth.instance
+            .signInWithCredential(credentials)
+            .then((value) => userCredential = value);
+
+        print(userCredential);
+
+        CollectionReference user = firestore.collection('users');
+
+        user.doc(_currentUser!.email).update({
+          "lastSignInTime":
+              userCredential!.user!.metadata.lastSignInTime!.toIso8601String()
+        });
+
+        final currentUser = await user.doc(_currentUser!.email).get();
+        final curUserData = currentUser.data() as Map<String, dynamic>;
+
+        dataUser = UserModel(
+            name: curUserData["name"],
+            email: curUserData["email"],
+            photoUrl: curUserData["photoUrl"],
+            status: curUserData["status"],
+            creationTime: curUserData["creationTime"],
+            lastSignInTime: curUserData["lastSignInTime"],
+            updatedTime: curUserData["updatedTime"]);
         return true;
       }
       return false;
@@ -72,6 +110,41 @@ class AuthController extends GetxController {
           box.remove('skipIntro');
         }
         box.write('skipIntro', true);
+
+        CollectionReference user = firestore.collection('users');
+
+        final checkUser = await user.doc(_currentUser!.email).get();
+        if (checkUser.data() == null) {
+          user.doc(_currentUser!.email).set({
+            "uid": userCredential!.user!.uid,
+            "name": _currentUser!.displayName,
+            "email": _currentUser!.email,
+            "photoUrl": _currentUser!.photoUrl ?? "noimage",
+            "status": "",
+            "creationTime":
+                userCredential!.user!.metadata.creationTime!.toIso8601String(),
+            "lastSignInTime": userCredential!.user!.metadata.lastSignInTime!
+                .toIso8601String(),
+            "updatedTime": DateTime.now().toIso8601String(),
+          });
+        } else {
+          user.doc(_currentUser!.email).update({
+            "lastSignInTime":
+                userCredential!.user!.metadata.lastSignInTime!.toIso8601String()
+          });
+        }
+
+        final currentUser = await user.doc(_currentUser!.email).get();
+        final curUserData = currentUser.data() as Map<String, dynamic>;
+
+        dataUser = UserModel(
+            name: curUserData["name"],
+            email: curUserData["email"],
+            photoUrl: curUserData["photoUrl"],
+            status: curUserData["status"],
+            creationTime: curUserData["creationTime"],
+            lastSignInTime: curUserData["lastSignInTime"],
+            updatedTime: curUserData["updatedTime"]);
 
         isAuth.value = true;
         Get.offAllNamed(Routes.HOME);

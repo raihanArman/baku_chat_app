@@ -10,54 +10,36 @@ import 'package:get_storage/get_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   await GetStorage.init();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
-
   final authC = Get.put(AuthController(), permanent: true);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      // Initialize FlutterFire:
-      future: _initialization,
-      builder: (context, snapshot) {
-        // Check for errors
-        if (snapshot.hasError) {
-          return ErrorPage();
-        }
-
-        // Once complete, show your application
-        if (snapshot.connectionState == ConnectionState.done) {
+        future: Future.delayed(Duration(seconds: 3)),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Obx(
+              () => GetMaterialApp(
+                title: "Application",
+                initialRoute: authC.isSkipIntro.isTrue
+                    ? authC.isAuth.isTrue
+                        ? Routes.HOME
+                        : Routes.LOGIN
+                    : Routes.INTRO,
+                getPages: AppPages.routes,
+              ),
+            );
+          }
           return FutureBuilder(
-              future: Future.delayed(Duration(seconds: 3)),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return Obx(
-                    () => GetMaterialApp(
-                      title: "Application",
-                      initialRoute: authC.isSkipIntro.isTrue
-                          ? authC.isAuth.isTrue
-                              ? Routes.HOME
-                              : Routes.LOGIN
-                          : Routes.INTRO,
-                      getPages: AppPages.routes,
-                    ),
-                  );
-                }
-                return FutureBuilder(
-                    future: authC.firstInitialized(),
-                    builder: (context, snapshot) => SplashScreen());
-              });
-        }
-
-        // Otherwise, show something whilst waiting for initialization to complete
-        return LoadingPage();
-      },
-    );
+              future: authC.firstInitialized(),
+              builder: (context, snapshot) => SplashScreen());
+        });
   }
 }

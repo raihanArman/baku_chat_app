@@ -37,26 +37,32 @@ class ProfileView extends GetView<ProfileController> {
                     endRadius: 110,
                     glowColor: Colors.black,
                     duration: Duration(seconds: 2),
-                    child: Container(
-                      margin: EdgeInsets.all(15),
-                      width: 175,
-                      height: 175,
-                      decoration: BoxDecoration(
-                          color: Colors.black38,
-                          borderRadius: BorderRadius.circular(100),
-                          image: DecorationImage(
-                            image: AssetImage("assets/logo/noimage.png"),
-                            fit: BoxFit.cover,
-                          )),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Container(
+                          margin: EdgeInsets.all(15),
+                          width: 175,
+                          height: 175,
+                          child: ClipRRect(
+                              borderRadius: BorderRadius.circular(200),
+                              child: authC.dataUser.photoUrl == "noimage"
+                                  ? Image.asset(
+                                      "assets/logo/noimage.png",
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.network(
+                                      authC.dataUser.photoUrl!,
+                                      fit: BoxFit.cover,
+                                    ))),
                     ),
                   ),
                   Text(
-                    "Lorem Ipsum",
+                    "${authC.dataUser.name}",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   Text(
-                    "Email@gmail.com",
+                    "${authC.dataUser.email}",
                     style: TextStyle(fontSize: 22),
                     textAlign: TextAlign.center,
                   ),
