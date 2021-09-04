@@ -7,32 +7,6 @@ import 'package:lottie/lottie.dart';
 import '../controllers/search_controller.dart';
 
 class SearchView extends GetView<SearchController> {
-  final List<Widget> friends = List.generate(
-      20,
-      (index) => ListTile(
-            leading: CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.black26,
-                child: Image.asset(
-                  "assets/logo/noimage.png",
-                  fit: BoxFit.cover,
-                )),
-            title: Text(
-              'Namanya',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-            ),
-            subtitle: Text(
-              'Namanya',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            trailing: GestureDetector(
-              onTap: () => Get.toNamed(Routes.CHAT_ROOM),
-              child: Chip(
-                label: Text('message'),
-              ),
-            ),
-          )).reversed.toList();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,6 +25,7 @@ class SearchView extends GetView<SearchController> {
                 child: TextField(
                   controller: controller.searchC,
                   cursorColor: Colors.red[900],
+                  onChanged: (value) => controller.searchFriend(value),
                   decoration: InputDecoration(
                     fillColor: Colors.white,
                     filled: true,
@@ -77,7 +52,7 @@ class SearchView extends GetView<SearchController> {
             ),
           ),
         ),
-        body: friends.length == 0
+        body: Obx(() => controller.tempSearch.length == 0
             ? Center(
                 child: Container(
                   width: Get.width * 0.7,
@@ -87,8 +62,30 @@ class SearchView extends GetView<SearchController> {
               )
             : ListView.builder(
                 padding: EdgeInsets.zero,
-                itemCount: friends.length,
-                itemBuilder: (context, index) => friends[index],
-              ));
+                itemCount: controller.tempSearch.length,
+                itemBuilder: (context, index) => ListTile(
+                  leading: CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.black26,
+                      child: Image.asset(
+                        "assets/logo/noimage.png",
+                        fit: BoxFit.cover,
+                      )),
+                  title: Text(
+                    "${controller.tempSearch[index]["name"]}",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: Text(
+                    '${controller.tempSearch[index]["email"]}',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  trailing: GestureDetector(
+                    onTap: () => Get.toNamed(Routes.CHAT_ROOM),
+                    child: Chip(
+                      label: Text('message'),
+                    ),
+                  ),
+                ),
+              )));
   }
 }
