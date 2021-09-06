@@ -9,23 +9,26 @@ class SearchController extends GetxController {
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  void searchFriend(String data) async {
+  void searchFriend(String data, String email) async {
     if (data.length == 0) {
       queryAwal.value = [];
       tempSearch.value = [];
     } else {
       var capitalize = data.substring(0, 1).toUpperCase() + data.substring(1);
+      print(capitalize);
 
       if (queryAwal.length == 0 && data.length == 1) {
-        CollectionReference clients = await firestore.collection("client");
-        final keyNameResult = await clients
+        CollectionReference users = await firestore.collection("users");
+        final keyNameResult = await users
             .where("keyName", isEqualTo: data.substring(0, 1).toUpperCase())
+            .where("email", isNotEqualTo: email)
             .get();
 
         if (keyNameResult.docs.length > 0) {
           for (int i = 0; i < keyNameResult.docs.length; i++) {
             queryAwal.add(keyNameResult.docs[i].data() as Map<String, dynamic>);
           }
+          print("QUERY RESULT : ${queryAwal}");
         } else {
           print("Tidak ada");
         }
@@ -40,6 +43,7 @@ class SearchController extends GetxController {
         });
       }
     }
+    print("QUERY RESULT TEMP SEARCH : ${tempSearch}");
 
     queryAwal.refresh();
     tempSearch.refresh();

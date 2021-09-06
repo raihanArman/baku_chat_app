@@ -1,3 +1,4 @@
+import 'package:baku_chat_app/app/controllers/auth_controller.dart';
 import 'package:baku_chat_app/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +8,7 @@ import 'package:lottie/lottie.dart';
 import '../controllers/search_controller.dart';
 
 class SearchView extends GetView<SearchController> {
+  final authC = Get.find<AuthController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +27,8 @@ class SearchView extends GetView<SearchController> {
                 child: TextField(
                   controller: controller.searchC,
                   cursorColor: Colors.red[900],
-                  onChanged: (value) => controller.searchFriend(value),
+                  onChanged: (value) => controller.searchFriend(
+                      value, authC.dataUser.value.email!),
                   decoration: InputDecoration(
                     fillColor: Colors.white,
                     filled: true,
@@ -64,12 +67,22 @@ class SearchView extends GetView<SearchController> {
                 padding: EdgeInsets.zero,
                 itemCount: controller.tempSearch.length,
                 itemBuilder: (context, index) => ListTile(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                   leading: CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.black26,
-                      child: Image.asset(
-                        "assets/logo/noimage.png",
-                        fit: BoxFit.cover,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: controller.tempSearch[index]["photoUrl"] ==
+                                "noimage"
+                            ? Image.asset(
+                                "assets/logo/noimage.png",
+                                fit: BoxFit.cover,
+                              )
+                            : Image.network(
+                                controller.tempSearch[index]["photoUrl"],
+                                fit: BoxFit.cover),
                       )),
                   title: Text(
                     "${controller.tempSearch[index]["name"]}",
@@ -80,7 +93,8 @@ class SearchView extends GetView<SearchController> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   trailing: GestureDetector(
-                    onTap: () => Get.toNamed(Routes.CHAT_ROOM),
+                    onTap: () => authC.addNewConnection(
+                        controller.tempSearch[index]["email"]),
                     child: Chip(
                       label: Text('message'),
                     ),
