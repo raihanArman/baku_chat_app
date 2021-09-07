@@ -245,12 +245,13 @@ class AuthController extends GetxController {
         docChat.add({
           "connection": emailFriend,
           "chat_id": chatDataId,
-          "lastTime": chatsData["lastTime"]
+          "lastTime": chatsData["lastTime"],
+          "total_unread": 0
         });
 
         await users.doc(_currentUser!.email).update({"chats": docChat});
         dataUser.update((user) {
-          user!.chats = docChat as List<ChatUser>;
+          user!.chats = docChat.cast<ChatUser>();
         });
 
         dataUser.refresh();
@@ -259,28 +260,25 @@ class AuthController extends GetxController {
       } else {
         final newChatDoc = await chats.add({
           "connection": [_currentUser!.email, emailFriend],
-          "total_chats": 0,
-          "total_read": 0,
-          "total_unread": 0,
           "chat": [],
-          "lastTime": DateTime.now().toIso8601String()
         });
 
         docChat.add({
           "connection": emailFriend,
           "chat_id": newChatDoc.id,
-          "lastTime": DateTime.now().toIso8601String()
+          "lastTime": DateTime.now().toIso8601String(),
+          "total_unread": 0
         });
 
         await users.doc(_currentUser!.email).update({"chats": docChat});
 
         dataUser.update((user) {
-          user!.chats = docChat as List<ChatUser>;
+          user!.chats = docChat.cast<ChatUser>();
         });
 
-        dataUser.refresh();
-
         chat_id = newChatDoc.id;
+
+        dataUser.refresh();
       }
     }
 
