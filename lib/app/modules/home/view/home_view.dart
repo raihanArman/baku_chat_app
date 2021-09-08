@@ -49,21 +49,21 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
           ),
+
           Expanded(
-            child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
               stream: controller.chatsStream(authC.dataUser.value.email!),
               builder: (context, snapshot1) {
                 if (snapshot1.connectionState == ConnectionState.active) {
-                  var allChats = (snapshot1.data!.data()
-                      as Map<String, dynamic>)["chats"] as List;
+                  var listDocsChats = snapshot1.data!.docs;
                   return ListView.builder(
                       padding: EdgeInsets.zero,
-                      itemCount: allChats.length,
+                      itemCount: listDocsChats.length,
                       itemBuilder: (context, index) {
                         return StreamBuilder<
                                 DocumentSnapshot<Map<String, dynamic>>>(
-                            stream: controller
-                                .friendStream(allChats[index]['connection']),
+                            stream: controller.friendStream(
+                                listDocsChats[index]["connection"]),
                             builder: (context, snapshot2) {
                               if (snapshot2.connectionState ==
                                   ConnectionState.active) {
@@ -73,6 +73,8 @@ class HomeView extends GetView<HomeController> {
                                         onTap: () {
                                           Get.toNamed(Routes.CHAT_ROOM);
                                         },
+                                        contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 20, vertical: 5),
                                         leading: CircleAvatar(
                                             radius: 30,
                                             backgroundColor: Colors.black26,
@@ -95,15 +97,23 @@ class HomeView extends GetView<HomeController> {
                                               fontSize: 20,
                                               fontWeight: FontWeight.w600),
                                         ),
-                                        trailing:
-                                            allChats[index]["total_unread"] == 0
-                                                ? Chip(
-                                                    label: Text(
-                                                        '${allChats[index]["total_unread"]}'),
-                                                  )
-                                                : SizedBox(),
+                                        trailing: listDocsChats[index]
+                                                    ["total_unread"] ==
+                                                0
+                                            ? SizedBox()
+                                            : Chip(
+                                                backgroundColor:
+                                                    Colors.red[900],
+                                                label: Text(
+                                                  '${listDocsChats[index]["total_unread"]}',
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              ),
                                       )
                                     : ListTile(
+                                        contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 20, vertical: 5),
                                         onTap: () {
                                           Get.toNamed(Routes.CHAT_ROOM);
                                         },
@@ -135,30 +145,145 @@ class HomeView extends GetView<HomeController> {
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600),
                                         ),
-                                        trailing:
-                                            allChats[index]["total_unread"] == 0
-                                                ? Chip(
-                                                    label: Text(
-                                                        '${allChats[index]["total_unread"]}'),
-                                                  )
-                                                : SizedBox(),
+                                        trailing: listDocsChats[index]
+                                                    ["total_unread"] ==
+                                                0
+                                            ? SizedBox()
+                                            : Chip(
+                                                backgroundColor:
+                                                    Colors.red[900],
+                                                label: Text(
+                                                  '${listDocsChats[index]["total_unread"]}',
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              ),
                                       );
                               } else {
                                 return Center(
-                                    child: CircularProgressIndicator());
+                                  child: CircularProgressIndicator(),
+                                );
                               }
                             });
                       });
+                } else {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
                 }
-                return Center(child: CircularProgressIndicator());
               },
             ),
-            // child: ListView.builder(
-            //   padding: EdgeInsets.zero,
-            //   itemCount: myChats.length,
-            //   itemBuilder: (context, index) => myChats[index],
-            // ),
-          )
+          ),
+          // Expanded(
+          //   child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          //     stream: controller.chatsStream(authC.dataUser.value.email!),
+          //     builder: (context, snapshot1) {
+          //       if (snapshot1.connectionState == ConnectionState.active) {
+          //         var allChats = (snapshot1.data!.data()
+          //             as Map<String, dynamic>)["chats"] as List;
+          //         return ListView.builder(
+          //             padding: EdgeInsets.zero,
+          //             itemCount: allChats.length,
+          //             itemBuilder: (context, index) {
+          //               return StreamBuilder<
+          //                       DocumentSnapshot<Map<String, dynamic>>>(
+          //                   stream: controller
+          //                       .friendStream(allChats[index]['connection']),
+          //                   builder: (context, snapshot2) {
+          //                     if (snapshot2.connectionState ==
+          //                         ConnectionState.active) {
+          //                       var data = snapshot2.data!.data();
+          //                       return data!["status"] == ""
+          //                           ? ListTile(
+          //                               onTap: () {
+          //                                 Get.toNamed(Routes.CHAT_ROOM);
+          //                               },
+          //                               leading: CircleAvatar(
+          //                                   radius: 30,
+          //                                   backgroundColor: Colors.black26,
+          //                                   child: ClipRRect(
+          //                                     borderRadius:
+          //                                         BorderRadius.circular(100),
+          //                                     child:
+          //                                         data["photoUrl"] == "noimage"
+          //                                             ? Image.asset(
+          //                                                 "assets/logo/noimage.png",
+          //                                                 fit: BoxFit.cover,
+          //                                               )
+          //                                             : Image.network(
+          //                                                 data["photoUrl"],
+          //                                                 fit: BoxFit.cover),
+          //                                   )),
+          //                               title: Text(
+          //                                 '${data["name"]}',
+          //                                 style: TextStyle(
+          //                                     fontSize: 20,
+          //                                     fontWeight: FontWeight.w600),
+          //                               ),
+          //                               trailing:
+          //                                   allChats[index]["total_unread"] == 0
+          //                                       ? Chip(
+          //                                           label: Text(
+          //                                               '${allChats[index]["total_unread"]}'),
+          //                                         )
+          //                                       : SizedBox(),
+          //                             )
+          //                           : ListTile(
+          //                               onTap: () {
+          //                                 Get.toNamed(Routes.CHAT_ROOM);
+          //                               },
+          //                               leading: CircleAvatar(
+          //                                   radius: 30,
+          //                                   backgroundColor: Colors.black26,
+          //                                   child: ClipRRect(
+          //                                     borderRadius:
+          //                                         BorderRadius.circular(100),
+          //                                     child:
+          //                                         data["photoUrl"] == "noimage"
+          //                                             ? Image.asset(
+          //                                                 "assets/logo/noimage.png",
+          //                                                 fit: BoxFit.cover,
+          //                                               )
+          //                                             : Image.network(
+          //                                                 data["photoUrl"],
+          //                                                 fit: BoxFit.cover),
+          //                                   )),
+          //                               title: Text(
+          //                                 '${data["name"]}',
+          //                                 style: TextStyle(
+          //                                     fontSize: 20,
+          //                                     fontWeight: FontWeight.w600),
+          //                               ),
+          //                               subtitle: Text(
+          //                                 '${data["status"]}',
+          //                                 style: TextStyle(
+          //                                     fontSize: 16,
+          //                                     fontWeight: FontWeight.w600),
+          //                               ),
+          //                               trailing:
+          //                                   allChats[index]["total_unread"] == 0
+          //                                       ? Chip(
+          //                                           label: Text(
+          //                                               '${allChats[index]["total_unread"]}'),
+          //                                         )
+          //                                       : SizedBox(),
+          //                             );
+          //                     } else {
+          //                       return Center(
+          //                           child: CircularProgressIndicator());
+          //                     }
+          //                   });
+          //             });
+          //       }
+          //       return Center(child: CircularProgressIndicator());
+          //     },
+          //   ),
+          //   // child: ListView.builder(
+          //   //   padding: EdgeInsets.zero,
+          //   //   itemCount: myChats.length,
+          //   //   itemBuilder: (context, index) => myChats[index],
+          //   // ),
+          // )
         ],
       ),
       floatingActionButton: FloatingActionButton(
