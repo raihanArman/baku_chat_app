@@ -330,9 +330,10 @@ class AuthController extends GetxController {
         dataUser.refresh();
       } else {
         final newChatDoc = await chats.add({
-          "connection": [_currentUser!.email, emailFriend],
-          "chat": [],
+          "connection": [_currentUser!.email, emailFriend]
         });
+
+        await chats.doc(newChatDoc.id).collection("chat");
 
         await users
             .doc(_currentUser!.email)
@@ -373,6 +374,7 @@ class AuthController extends GetxController {
       }
     }
 
-    Get.toNamed(Routes.CHAT_ROOM, arguments: chat_id);
+    Get.toNamed(Routes.CHAT_ROOM,
+        arguments: {"chat_id": "$chat_id", "friend_email": emailFriend});
   }
 }

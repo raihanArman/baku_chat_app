@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:baku_chat_app/app/controllers/auth_controller.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,8 @@ import 'package:get/get.dart';
 import '../controllers/chat_room_controller.dart';
 
 class ChatRoomView extends GetView<ChatRoomController> {
+  final authC = Get.find<AuthController>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,6 +109,10 @@ class ChatRoomView extends GetView<ChatRoomController> {
                       borderRadius: BorderRadius.circular(100),
                       color: Colors.red[900],
                       child: InkWell(
+                        onTap: () => controller.newChat(
+                            authC.dataUser.value.email!,
+                            Get.arguments as Map<String, dynamic>,
+                            controller.chatC.text),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Icon(
