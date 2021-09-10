@@ -11,6 +11,12 @@ class ChatRoomController extends GetxController {
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+  Stream<QuerySnapshot<Map<String, dynamic>>> streamChats(String chat_id) {
+    CollectionReference chats = firestore.collection("chats");
+
+    return chats.doc(chat_id).collection("chat").orderBy("time").snapshots();
+  }
+
   void addEmojiToChat(Emoji emoji) {
     chatC.text = chatC.text + emoji.emoji;
   }
@@ -37,7 +43,7 @@ class ChatRoomController extends GetxController {
     await users
         .doc(email)
         .collection("chats")
-        .doc(arguments["newChat.id"])
+        .doc(arguments["chat_id"])
         .update({"lastTime": date});
 
     final checkChatsFriend = await users
@@ -47,29 +53,57 @@ class ChatRoomController extends GetxController {
         .get();
 
     if (checkChatsFriend.exists) {
-      await users
-          .doc(arguments["friend_email"])
-          .collection("chats")
+      // First check total unread
+
+      final checkTotalUnread = await chats
           .doc(arguments["chat_id"])
-          .get()
-          .then((value) => total_unread = value.data()!["total_unread"] as int);
+          .collection("chat")
+          .where("isRead", isEqualTo: false)
+          .where("pengirim", isEqualTo: email)
+          .get();
+
+      // total unread for friend
+      total_unread = checkTotalUnread.docs.length;
 
       await users
           .doc(arguments["friend_email"])
           .collection("chats")
           .doc(arguments["chat_id"])
-          .update({"lastTime": date, "total_unread": total_unread + 1});
+          .update({"lastTime": date, "total_unread": total_unread});
     } else {
       await users
           .doc(arguments["friend_email"])
           .collection("chats")
           .doc(arguments["chat_id"])
-          .set({
-        "connection": email,
-        "lastTime": date,
-        "total_unread": total_unread += 1
-      });
+          .set({"connection": email, "lastTime": date, "total_unread": 1});
     }
+
+    chatC.clear();
+
+    // if (checkChatsFriend.exists) {
+    //   await users
+    //       .doc(arguments["friend_email"])
+    //       .collection("chats")
+    //       .doc(arguments["chat_id"])
+    //       .get()
+    //       .then((value) => total_unread = value.data()!["total_unread"] as int);
+
+    //   await users
+    //       .doc(arguments["friend_email"])
+    //       .collection("chats")
+    //       .doc(arguments["chat_id"])
+    //       .update({"lastTime": date, "total_unread": total_unread + 1});
+    // } else {
+    //   await users
+    //       .doc(arguments["friend_email"])
+    //       .collection("chats")
+    //       .doc(arguments["chat_id"])
+    //       .set({
+    //     "connection": email,
+    //     "lastTime": date,
+    //     "total_unread": total_unread += 1
+    //   });
+    // }
   }
 
   @override

@@ -71,14 +71,11 @@ class HomeView extends GetView<HomeController> {
                                 return data!["status"] == ""
                                     ? ListTile(
                                         onTap: () {
-                                          Get.toNamed(Routes.CHAT_ROOM,
-                                              arguments: {
-                                                "chat_id":
-                                                    "${listDocsChats[index].id}",
-                                                "friend_email":
-                                                    listDocsChats[index]
-                                                        ["connection"]
-                                              });
+                                          controller.gotoChatRoom(
+                                              "${listDocsChats[index].id}",
+                                              authC.dataUser.value.email!,
+                                              listDocsChats[index]
+                                                  ["connection"]);
                                         },
                                         contentPadding: EdgeInsets.symmetric(
                                             horizontal: 20, vertical: 5),
@@ -122,14 +119,11 @@ class HomeView extends GetView<HomeController> {
                                         contentPadding: EdgeInsets.symmetric(
                                             horizontal: 20, vertical: 5),
                                         onTap: () {
-                                          Get.toNamed(Routes.CHAT_ROOM,
-                                              arguments: {
-                                                "chat_id":
-                                                    "${listDocsChats[index].id}",
-                                                "friendEmail":
-                                                    listDocsChats[index]
-                                                        ["connection"]
-                                              });
+                                          controller.gotoChatRoom(
+                                              "${listDocsChats[index].id}",
+                                              authC.dataUser.value.email!,
+                                              listDocsChats[index]
+                                                  ["connection"]);
                                         },
                                         leading: CircleAvatar(
                                             radius: 30,

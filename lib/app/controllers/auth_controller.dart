@@ -307,7 +307,7 @@ class AuthController extends GetxController {
             await users.doc(_currentUser!.email).collection("chats").get();
 
         if (listChats.docs.length != 0) {
-          List<ChatUser> dataListChats = List.empty();
+          List<ChatUser> dataListChats = List<ChatUser>.empty();
           listChats.docs.forEach((element) {
             var dataDocChat = element.data();
             var dataDocChatId = element.id;
@@ -373,6 +373,27 @@ class AuthController extends GetxController {
         dataUser.refresh();
       }
     }
+
+    final updateStatusRead = await chats
+        .doc(chat_id)
+        .collection("chat")
+        .where("isRead", isEqualTo: false)
+        .where("penerima", isEqualTo: _currentUser!.email)
+        .get();
+
+    updateStatusRead.docs.forEach((element) async {
+      await chats
+          .doc(chat_id)
+          .collection("chat")
+          .doc(element.id)
+          .update({"isRead": true});
+    });
+
+    await users
+        .doc(_currentUser!.email)
+        .collection("chats")
+        .doc(chat_id)
+        .update({"total_unread": 0});
 
     Get.toNamed(Routes.CHAT_ROOM,
         arguments: {"chat_id": "$chat_id", "friend_email": emailFriend});
