@@ -1,15 +1,25 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class ChatRoomController extends GetxController {
   var isShowEmoji = false.obs;
   late FocusNode focusNode;
   late TextEditingController chatC;
+  late ScrollController scrollC;
+
   int total_unread = 0;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  Stream<DocumentSnapshot<Object?>> streamFriendData(String friendEmail) {
+    CollectionReference users = firestore.collection("users");
+    return users.doc(friendEmail).snapshots();
+  }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> streamChats(String chat_id) {
     CollectionReference chats = firestore.collection("chats");
@@ -27,88 +37,70 @@ class ChatRoomController extends GetxController {
 
   void newChat(
       String email, Map<String, dynamic> arguments, String chat) async {
-    CollectionReference chats = firestore.collection("chats");
-    CollectionReference users = firestore.collection("users");
-    String date = DateTime.now().toIso8601String();
-    print(email);
-    final newChat =
-        await chats.doc(arguments["chat_id"]).collection("chat").add({
-      "pengirim": email,
-      "penerima": arguments["friend_email"],
-      "msg": chat,
-      "time": date,
-      "isRead": false
-    });
+    if (chat != "") {
+      CollectionReference chats = firestore.collection("chats");
+      CollectionReference users = firestore.collection("users");
+      String date = DateTime.now().toIso8601String();
+      print(email);
 
-    await users
-        .doc(email)
-        .collection("chats")
-        .doc(arguments["chat_id"])
-        .update({"lastTime": date});
+      await chats.doc(arguments["chat_id"]).collection("chat").add({
+        "pengirim": email,
+        "penerima": arguments["friend_email"],
+        "msg": chat,
+        "time": date,
+        "isRead": false,
+        "groupTime": DateFormat.yMMMMd('en_US').format(DateTime.parse(date))
+      });
 
-    final checkChatsFriend = await users
-        .doc(arguments["friend_email"])
-        .collection("chats")
-        .doc(arguments["chat_id"])
-        .get();
+      Timer(Duration.zero,
+          () => scrollC.jumpTo(scrollC.position.maxScrollExtent));
 
-    if (checkChatsFriend.exists) {
-      // First check total unread
+      chatC.clear();
 
-      final checkTotalUnread = await chats
+      await users
+          .doc(email)
+          .collection("chats")
           .doc(arguments["chat_id"])
-          .collection("chat")
-          .where("isRead", isEqualTo: false)
-          .where("pengirim", isEqualTo: email)
+          .update({"lastTime": date});
+
+      final checkChatsFriend = await users
+          .doc(arguments["friend_email"])
+          .collection("chats")
+          .doc(arguments["chat_id"])
           .get();
 
-      // total unread for friend
-      total_unread = checkTotalUnread.docs.length;
+      if (checkChatsFriend.exists) {
+        // First check total unread
 
-      await users
-          .doc(arguments["friend_email"])
-          .collection("chats")
-          .doc(arguments["chat_id"])
-          .update({"lastTime": date, "total_unread": total_unread});
-    } else {
-      await users
-          .doc(arguments["friend_email"])
-          .collection("chats")
-          .doc(arguments["chat_id"])
-          .set({"connection": email, "lastTime": date, "total_unread": 1});
+        final checkTotalUnread = await chats
+            .doc(arguments["chat_id"])
+            .collection("chat")
+            .where("isRead", isEqualTo: false)
+            .where("pengirim", isEqualTo: email)
+            .get();
+
+        // total unread for friend
+        total_unread = checkTotalUnread.docs.length;
+
+        await users
+            .doc(arguments["friend_email"])
+            .collection("chats")
+            .doc(arguments["chat_id"])
+            .update({"lastTime": date, "total_unread": total_unread});
+      } else {
+        await users
+            .doc(arguments["friend_email"])
+            .collection("chats")
+            .doc(arguments["chat_id"])
+            .set({"connection": email, "lastTime": date, "total_unread": 1});
+      }
     }
-
-    chatC.clear();
-
-    // if (checkChatsFriend.exists) {
-    //   await users
-    //       .doc(arguments["friend_email"])
-    //       .collection("chats")
-    //       .doc(arguments["chat_id"])
-    //       .get()
-    //       .then((value) => total_unread = value.data()!["total_unread"] as int);
-
-    //   await users
-    //       .doc(arguments["friend_email"])
-    //       .collection("chats")
-    //       .doc(arguments["chat_id"])
-    //       .update({"lastTime": date, "total_unread": total_unread + 1});
-    // } else {
-    //   await users
-    //       .doc(arguments["friend_email"])
-    //       .collection("chats")
-    //       .doc(arguments["chat_id"])
-    //       .set({
-    //     "connection": email,
-    //     "lastTime": date,
-    //     "total_unread": total_unread += 1
-    //   });
-    // }
   }
 
   @override
   void onInit() {
     chatC = TextEditingController();
+    scrollC = ScrollController();
     focusNode = FocusNode();
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
@@ -121,6 +113,7 @@ class ChatRoomController extends GetxController {
   @override
   void onClose() {
     chatC.dispose();
+    scrollC.dispose();
     focusNode.dispose();
     super.onClose();
   }
