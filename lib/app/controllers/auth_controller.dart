@@ -398,4 +398,20 @@ class AuthController extends GetxController {
     Get.toNamed(Routes.CHAT_ROOM,
         arguments: {"chat_id": "$chat_id", "friend_email": emailFriend});
   }
+
+  void updatePhotoUrl(String url) async {
+    CollectionReference user = firestore.collection('users');
+    await user.doc(_currentUser!.email).update(
+        {"photoUrl": url, "updateTime": DateTime.now().toIso8601String()});
+
+    dataUser.update((user) {
+      user!.photoUrl = url;
+      user.updatedTime = DateTime.now().toIso8601String();
+    });
+
+    dataUser.refresh();
+
+    Get.defaultDialog(
+        title: "Success", middleText: "Change photo profile Successfully");
+  }
 }

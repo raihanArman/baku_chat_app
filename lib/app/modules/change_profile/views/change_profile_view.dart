@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:baku_chat_app/app/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
@@ -125,9 +127,56 @@ class ChangeProfileView extends GetView<ChangeProfileController> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('no image'),
+                    GetBuilder<ChangeProfileController>(
+                        builder: (c) => c.pickImage != null
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    height: 110,
+                                    width: 125,
+                                    child: Stack(children: [
+                                      Container(
+                                          height: 100,
+                                          width: 100,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(100),
+                                              image: DecorationImage(
+                                                  image: FileImage(
+                                                      File(c.pickImage!.path)),
+                                                  fit: BoxFit.cover))),
+                                      Positioned(
+                                        top: -10,
+                                        right: -5,
+                                        child: IconButton(
+                                            onPressed: () => c.resetImage(),
+                                            icon: Icon(
+                                              Icons.delete,
+                                              color: Colors.red[900],
+                                            )),
+                                      ),
+                                    ]),
+                                  ),
+                                  TextButton(
+                                      onPressed: () => c
+                                              .updloadImage(
+                                                  authC.dataUser.value.uid!)
+                                              .then((value) {
+                                            if (value != null) {
+                                              authC.updatePhotoUrl(value);
+                                            }
+                                          }),
+                                      child: Text(
+                                        'Upload',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ))
+                                ],
+                              )
+                            : Text('no image')),
                     TextButton(
-                        onPressed: () {},
+                        onPressed: () => controller.selectImage(),
                         child: Text(
                           'Pilih file',
                           style: TextStyle(fontWeight: FontWeight.bold),
